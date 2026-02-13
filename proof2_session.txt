@@ -1,0 +1,62 @@
+Script started on 2026-02-13 17:15:50+05:30 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="172" LINES="43"]
+[?2004h]0;sewmini@MSI: ~/fabric-samples/test-network[01;32msewmini@MSI[00m:[01;34m~/fabric-samples/test-network[00m$ [7mexport CORE_PEER_LOCALMSPID=Org1MSP[27m
+[7mexport CORE_PEER_TLS_ENABLED=true[27m
+[7mexport CORE_PEER_ADDRESS=localhost:7051[27m
+[7mexport CORE_PEER_TLS_ROOTCERT_FILE=$PWD/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt[27m
+[7mexport CORE_PEER_MSPCONFIGPATH=$PWD/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp[27m
+[7mexport ORDERER_CA=$PWD/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem[27m
+[A[A[A[A[A[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cexport CORE_PEER_LOCALMSPID=Org1MSP
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_ADDRESS=localhost:7051
+export CORE_PEER_TLS_ROOTCERT_FILE=$PWD/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=$PWD/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+export ORDERER_CA=$PWD/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+[A
+[?2004l[?2004h]0;sewmini@MSI: ~/fabric-samples/test-network[01;32msewmini@MSI[00m:[01;34m~/fabric-samples/test-network[00m$ [7mecho "Original Evidence Data" > evidence.txt[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cecho "Original Evidence Data" > evidence.txt
+[A
+[?2004l[?2004h]0;sewmini@MSI: ~/fabric-samples/test-network[01;32msewmini@MSI[00m:[01;34m~/fabric-samples/test-network[00m$ [7msha256sum evidence.txt[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Csha256sum evidence.txt
+[A
+[?2004l11502c5372b6a4ac54419b434ebbddcd7d8b2216486149c560e32275eb2277c5  evidence.txt
+[?2004h]0;sewmini@MSI: ~/fabric-samples/test-network[01;32msewmini@MSI[00m:[01;34m~/fabric-samples/test-network[00m$ [7mpeer chaincode invoke \[27m
+[7m-o localhost:7050 \[27m
+[7m--ordererTLSHostnameOverride orderer.example.com \[27m
+[7m--tls \[27m
+[7m--cafile $ORDERER_CA \[27m
+[7m-C mychannel \[27m
+[7m-n reportcc \[27m
+[7m-c '{"function":"CreateReport","Args":["R200","Integrity Test","MinistryUser","<HASH_VALUE>"]}'[27m
+[A[A[A[A[A[A[A[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cpeer chaincode invoke \
+-o localhost:7050 \
+--ordererTLSHostnameOverride orderer.example.com \
+--tls \
+--cafile $ORDERER_CA \
+-C mychannel \
+-n reportcc \
+-c '{"function":"CreateReport","Args":["R200","Integrity Test","MinistryUser","<HASH_VALUE>"]}'[1P>"]}'[C[1P"]}'[1P"]}'[1P"]}'[1P"]}'[1P"]}'[1P"]}'[1P"]}'[1P"]}'[1P"]}'[1P"]}'[1P"]}'[7m11502c5372b6a4ac54419b434ebbddcd7d8b2216486149c560e32275eb2277c5[27m"]}'11502c5372b6a4ac54419b434ebbddcd7d8b2216486149c560e32275eb2277c5"]}'[C[C[C
+[A
+[?2004l[34m2026-02-13 17:18:14.405 +0530 0001 INFO[0m [chaincodeCmd] [34;1mchaincodeInvokeOrQuery[0m -> Chaincode invoke successful. result: status:200 
+[?2004h]0;sewmini@MSI: ~/fabric-samples/test-network[01;32msewmini@MSI[00m:[01;34m~/fabric-samples/test-network[00m$ [7mecho "Tampered Evidence Data" > evidence.txt[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cecho "Tampered Evidence Data" > evidence.txt
+[A
+[?2004l[?2004h]0;sewmini@MSI: ~/fabric-samples/test-network[01;32msewmini@MSI[00m:[01;34m~/fabric-samples/test-network[00m$ [7msha256sum evidence.txt[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Csha256sum evidence.txt
+[A
+[?2004l5ec77a035647c51d0cc498913a9cc53f6f11949200ba651f31dd19b103f512bc  evidence.txt
+[?2004h]0;sewmini@MSI: ~/fabric-samples/test-network[01;32msewmini@MSI[00m:[01;34m~/fabric-samples/test-network[00m$ [7mpeer chaincode query \[27m
+[7m-C mychannel \[27m
+[7m-n reportcc \[27m
+[7m-c '{"function":"ReadReport","Args":["R200"]}'[27m
+[A[A[A[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cpeer chaincode query \
+-C mychannel \
+-n reportcc \
+-c '{"function":"ReadReport","Args":["R200"]}'
+[A
+[?2004lError: endorsement failure during query. response: status:500 message:"Function ReadReport not found in contract ReportContract" 
+[?2004h]0;sewmini@MSI: ~/fabric-samples/test-network[01;32msewmini@MSI[00m:[01;34m~/fabric-samples/test-network[00m$ [7mexit[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cexit
+[A
+[?2004lexit
+
+Script done on 2026-02-13 17:19:57+05:30 [COMMAND_EXIT_CODE="1"]
