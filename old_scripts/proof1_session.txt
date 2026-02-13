@@ -1,0 +1,28 @@
+Script started on 2026-02-13 14:33:13+05:30 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="237" LINES="55"]
+[?2004h]0;sewmini@MSI: ~/fabric-samples/test-network[01;32msewmini@MSI[00m:[01;34m~/fabric-samples/test-network[00m$ [7mexport ORDERER_CA=$PWD/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cexport ORDERER_CA=$PWD/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+[A
+[?2004l[?2004h]0;sewmini@MSI: ~/fabric-samples/test-network[01;32msewmini@MSI[00m:[01;34m~/fabric-samples/test-network[00m$ [7mpeer chaincode invoke \[27m
+[7m-o localhost:7050 \[27m
+[7m--ordererTLSHostnameOverride orderer.example.com \[27m
+[7m--tls \[27m
+[7m--cafile $ORDERER_CA \[27m
+[7m-C mychannel \[27m
+[7m-n reportcc \[27m
+[7m-c '{"function":"DeleteReport","Args":["R500"]}'[27m
+[A[A[A[A[A[A[A[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cpeer chaincode invoke \
+-o localhost:7050 \
+--ordererTLSHostnameOverride orderer.example.com \
+--tls \
+--cafile $ORDERER_CA \
+-C mychannel \
+-n reportcc \
+-c '{"function":"DeleteReport","Args":["R500"]}'
+[A
+[?2004lError: endorsement failure during invoke. response: status:500 message:"Function DeleteReport not found in contract ReportContract" 
+[?2004h]0;sewmini@MSI: ~/fabric-samples/test-network[01;32msewmini@MSI[00m:[01;34m~/fabric-samples/test-network[00m$ [7mexit[27m
+[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cexit
+[A
+[?2004lexit
+
+Script done on 2026-02-13 14:35:04+05:30 [COMMAND_EXIT_CODE="1"]
