@@ -1,143 +1,140 @@
 package main
 
 import (
-"encoding/json"
-       "fmt"
-    "github.com/hyperledger/fabric-contract-api-go/contractapi"
+	"encoding/json"
+	"fmt"
+
+	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
-// Report struct defines the data
 type Report struct {
-    ReportID     string `json:"reportID"`
-    Description  string `json:"description"`
-    Status       string `json:"status"`
-    Reporter     string `json:"reporter"`
-    EvidenceHash string `json:"evidenceHash"`
+	ReportID     string `json:"reportID"`
+	Description  string `json:"description"`
+	Status       string `json:"status"`
+	Reporter     string `json:"reporter"`
+	AssignedTo   string `json:"assignedTo"`
+	EvidenceHash string `json:"evidenceHash"`
 }
 
-// ReportContract defines the chaincode
 type ReportContract struct {
-    contractapi.Contract
+	contractapi.Contract
 }
 
-// CreateReport - Org1 only
-func (rc *ReportContract) CreateReport(ctx contractapi.TransactionContextInterface, reportID, description, reporter, evidenceHash string) error {
-    mspID, err := ctx.GetClientIdentity().GetMSPID()
-    if err != nil {
-        return fmt.Errorf("failed to get MSPID: %v", err)
-    }
-    if mspID != "Org1MSP" {
-        return fmt.Errorf("only Org1 can create reports")
-    }
+// ----------------------
+// ROLE 1: CITIZEN (Org1)
+// ----------------------
+func (rc *ReportContract) CreateReport(ctx contractapi.TransactionContextInterface,
+	reportID, description, reporter, evidenceHash string) error {
 
-    exists, err := rc.ReportExists(ctx, reportID)
-    if err != nil {
-        return err
-    }
-    if exists {
-        return fmt.Errorf("report %s already exists", reportID)
-    }
+	mspID, _ := ctx.GetClientIdentity().GetMSPID()
+	if mspID != "Org1MSP" {
+		return fmt.Errorf("only Org1 (Citizen) can create reports")
+	}
 
-    report := Report{
-        ReportID:     reportID,
-        Description:  description,
-        Status:       "Pending",
-        Reporter:     reporter,
-        EvidenceHash: evidenceHash,
-    }
+	exists, _ := rc.ReportExists(ctx, reportID)
+	if exists {
+		return fmt.Errorf("report already exists")
+	}
 
-    reportJSON, err := json.Marshal(report)
-    if err != nil {
-        return err
-    }
+	report := Report{
+		ReportID:     reportID,
+		Description:  description,
+		Status:       "Submitted",
+		Reporter:     reporter,
+		AssignedTo:   "",
+		EvidenceHash: evidenceHash,
+	}
 
-    return ctx.GetStub().PutState(reportID, reportJSON)
+	reportJSON, _ := json.Marshal(report)
+	return ctx.GetStub().PutState(reportID, reportJSON)
 }
 
-// UpdateStatus - Org2 only
-func (rc *ReportContract) UpdateStatus(ctx contractapi.TransactionContextInterface, reportID, newStatus string) error {
-    mspID, err := ctx.GetClientIdentity().GetMSPID()
-    if err != nil {
-        return fmt.Errorf("failed to get MSPID: %v", err)
-    }
-    if mspID != "Org2MSP" {
-        return fmt.Errorf("only Org2 can update status")
-    }
+// ----------------------
+// ROLE 2: MINISTRY (Org2)
+// ----------------------
+func (rc *ReportContract) AssignAgency(ctx contractapi.TransactionContextInterface,
+	reportID, agency string) error {
 
-    reportJSON, err := ctx.GetStub().GetState(reportID)
-    if err != nil {
-        return err
-    }
-    if reportJSON == nil {
-        return fmt.Errorf("report %s does not exist", reportID)
-    }
+	mspID, _ := ctx.GetClientIdentity().GetMSPID()
+	if mspID != "Org2MSP" {
+		return fmt.Errorf("only Ministry (Org2) can assign agencies")
+	}
 
-    var report Report
-    err = json.Unmarshal(reportJSON, &report)
-    if err != nil {
-        return err
-    }
+	reportJSON, _ := ctx.GetStub().GetState(reportID)
+	if reportJSON == nil {
+		return fmt.Errorf("report does not exist")
+	}
 
-    report.Status = newStatus
-    updatedJSON, err := json.Marshal(report)
-    if err != nil {
-        return err
-    }
+	var report Report
+	json.Unmarshal(reportJSON, &report)
 
-    return ctx.GetStub().PutState(reportID, updatedJSON)
+	report.AssignedTo = agency
+	report.Status = "Assigned"
+
+	updatedJSON, _ := json.Marshal(report)
+	return ctx.GetStub().PutState(reportID, updatedJSON)
 }
 
-// ReportExists helper
-func (rc *ReportContract) ReportExists(ctx contractapi.TransactionContextInterface, reportID string) (bool, error) {
-    reportJSON, err := ctx.GetStub().GetState(reportID)
-    if err != nil {
-        return false, err
-    }
-    return reportJSON != nil, nil
+// ----------------------
+// ROLE 3: AGENCY
+// ----------------------
+func (rc *ReportContract) UpdateStatus(ctx contractapi.TransactionContextInterface,
+	reportID, newStatus string) error {
+
+	reportJSON, _ := ctx.GetStub().GetState(reportID)
+	if reportJSON == nil {
+		return fmt.Errorf("report does not exist")
+	}
+
+	var report Report
+	json.Unmarshal(reportJSON, &report)
+
+	report.Status = newStatus
+
+	updatedJSON, _ := json.Marshal(report)
+	return ctx.GetStub().PutState(reportID, updatedJSON)
 }
 
-// GetHistory - Audit function
-func (rc *ReportContract) GetHistory(ctx contractapi.TransactionContextInterface, reportID string) (string, error) {
-    resultsIterator, err := ctx.GetStub().GetHistoryForKey(reportID)
-    if err != nil {
-        return "", err
-    }
-    defer resultsIterator.Close()
+// ----------------------
+// ROLE 4: AUDITOR
+// ----------------------
+func (rc *ReportContract) GetHistory(ctx contractapi.TransactionContextInterface,
+	reportID string) (string, error) {
 
-    var history []map[string]interface{}
-    for resultsIterator.HasNext() {
-        response, err := resultsIterator.Next()
-        if err != nil {
-            return "", err
-        }
-        var record map[string]interface{}
-        if response.Value != nil {
-            json.Unmarshal(response.Value, &record)
-        } else {
-            record = map[string]interface{}{"Deleted": true}
-        }
-        record["TxId"] = response.TxId
-        record["Timestamp"] = response.Timestamp
-        history = append(history, record)
-    }
+	resultsIterator, err := ctx.GetStub().GetHistoryForKey(reportID)
+	if err != nil {
+		return "", err
+	}
+	defer resultsIterator.Close()
 
-    historyJSON, err := json.Marshal(history)
-    if err != nil {
-        return "", err
-    }
+	var history []map[string]interface{}
 
-    return string(historyJSON), nil
+	for resultsIterator.HasNext() {
+		response, _ := resultsIterator.Next()
+
+		var record map[string]interface{}
+		if response.Value != nil {
+			json.Unmarshal(response.Value, &record)
+		}
+
+		record["TxId"] = response.TxId
+		record["Timestamp"] = response.Timestamp
+
+		history = append(history, record)
+	}
+
+	historyJSON, _ := json.Marshal(history)
+	return string(historyJSON), nil
 }
 
-// Main
+func (rc *ReportContract) ReportExists(ctx contractapi.TransactionContextInterface,
+	reportID string) (bool, error) {
+
+	reportJSON, _ := ctx.GetStub().GetState(reportID)
+	return reportJSON != nil, nil
+}
+
 func main() {
-    chaincode, err := contractapi.NewChaincode(new(ReportContract))
-    if err != nil {
-        fmt.Printf("Error create chaincode: %s", err.Error())
-        return
-    }
-
-    if err := chaincode.Start(); err != nil {
-        fmt.Printf("Error starting chaincode: %s", err.Error())
-    }
+	chaincode, _ := contractapi.NewChaincode(new(ReportContract))
+	chaincode.Start()
 }
